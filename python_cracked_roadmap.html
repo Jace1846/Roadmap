@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cracked Python Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f16;
+    --surface: #151823;
+    --surface-2: #1b1f2d;
+    --border: rgba(255,255,255,0.07);
+    --border-strong: rgba(255,255,255,0.14);
+    --text: #e7e9f0;
+    --muted: #8b91a3;
+    --faint: #5b6175;
+    --core: #eaa85c;
+    --core-bg: rgba(234,168,92,0.12);
+    --useful: #5fb6c9;
+    --useful-bg: rgba(95,182,201,0.12);
+    --later: #8089a0;
+    --later-bg: rgba(128,137,160,0.10);
+    --skip: #5b6175;
+    --skip-bg: rgba(91,97,117,0.08);
+    --done: #6fc592;
+    --done-bg: rgba(111,197,146,0.12);
+    --accent: #a78bfa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 4rem;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ---- Top bar ---- */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(13,15,22,0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .bar-inner { max-width: 920px; margin: 0 auto; padding: 0.9rem 1.5rem; }
+  .bar-top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .brand { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.05rem; letter-spacing: -0.01em; }
+  .brand .dim { color: var(--faint); font-weight: 400; }
+  .overall { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--muted); }
+  .overall b { color: var(--done); font-weight: 700; }
+  .progress-rail { height: 4px; background: var(--surface-2); border-radius: 99px; margin-top: 0.7rem; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--done), #8fd9ad); border-radius: 99px; transition: width 0.4s ease; }
+
+  .controls { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.8rem; flex-wrap: wrap; }
+  .filters { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .chip {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 500;
+    padding: 0.28rem 0.6rem; border-radius: 6px; cursor: pointer; user-select: none;
+    border: 1px solid var(--border-strong); background: transparent; color: var(--muted);
+    transition: all 0.15s; letter-spacing: 0.02em;
+  }
+  .chip[data-on="true"].c-core { background: var(--core-bg); color: var(--core); border-color: var(--core); }
+  .chip[data-on="true"].c-useful { background: var(--useful-bg); color: var(--useful); border-color: var(--useful); }
+  .chip[data-on="true"].c-later { background: var(--later-bg); color: var(--later); border-color: var(--later); }
+  .chip[data-on="true"].c-skip { background: var(--skip-bg); color: var(--skip); border-color: var(--skip); }
+  .chip[data-on="false"] { opacity: 0.42; text-decoration: line-through; }
+  .search {
+    flex: 1; min-width: 140px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+    background: var(--surface); border: 1px solid var(--border-strong); color: var(--text);
+    padding: 0.4rem 0.7rem; border-radius: 6px;
+  }
+  .search::placeholder { color: var(--faint); }
+  .search:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .reset {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--faint);
+    background: transparent; border: 1px solid var(--border); padding: 0.3rem 0.6rem;
+    border-radius: 6px; cursor: pointer; transition: all 0.15s;
+  }
+  .reset:hover { color: var(--muted); border-color: var(--border-strong); }
+
+  /* ---- Layout ---- */
+  main { max-width: 920px; margin: 0 auto; padding: 2.5rem 1.5rem 0; }
+
+  .hero { margin-bottom: 2.5rem; }
+  .hero h1 {
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 2.2rem;
+    letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.6rem;
+  }
+  .hero h1 .accent { color: var(--accent); }
+  .hero p { color: var(--muted); max-width: 60ch; font-size: 0.95rem; }
+
+  .legend { display: flex; gap: 1.1rem; flex-wrap: wrap; margin-top: 1.3rem; padding: 0.9rem 1.1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+  .legend-item { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.8rem; }
+  .legend-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 5px; white-space: nowrap; margin-top: 0.1rem; }
+  .legend-item span.desc { color: var(--muted); }
+  .lt-core { background: var(--core-bg); color: var(--core); }
+  .lt-useful { background: var(--useful-bg); color: var(--useful); }
+  .lt-later { background: var(--later-bg); color: var(--later); }
+  .lt-skip { background: var(--skip-bg); color: var(--skip); }
+
+  /* ---- Spine callout ---- */
+  .spine {
+    margin: 2rem 0 3rem; padding: 1.4rem 1.5rem;
+    background: linear-gradient(180deg, rgba(167,139,250,0.07), transparent);
+    border: 1px solid rgba(167,139,250,0.25); border-radius: 12px;
+  }
+  .spine h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .spine p { font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem; }
+  .spine ol { list-style: none; counter-reset: spine; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.5rem; }
+  .spine li { counter-increment: spine; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; padding-left: 2rem; position: relative; color: var(--text); }
+  .spine li::before { content: counter(spine); position: absolute; left: 0; top: -1px; width: 1.4rem; height: 1.4rem; background: var(--accent); color: #1a1430; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.72rem; }
+
+  /* ---- Tracks ---- */
+  .track { margin-bottom: 3rem; scroll-margin-top: 8rem; }
+  .track-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.3rem; flex-wrap: wrap; }
+  .track-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.45rem; font-weight: 700; letter-spacing: -0.02em; }
+  .track-num { font-family: 'JetBrains Mono', monospace; color: var(--faint); font-size: 0.9rem; font-weight: 400; margin-right: 0.5rem; }
+  .track-count { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
+  .track-count b { color: var(--done); }
+  .track-blurb { color: var(--muted); font-size: 0.88rem; margin-bottom: 0.5rem; }
+  .track-rail { height: 3px; background: var(--surface-2); border-radius: 99px; overflow: hidden; margin-bottom: 1.4rem; }
+  .track-rail span { display: block; height: 100%; width: 0%; background: var(--done); border-radius: 99px; transition: width 0.4s; }
+
+  .stage { margin-bottom: 1.5rem; }
+  .stage-name { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.1rem; }
+  .stage-note { font-size: 0.8rem; color: var(--faint); margin-bottom: 0.6rem; font-style: italic; }
+
+  .topic {
+    display: flex; align-items: flex-start; gap: 0.7rem;
+    padding: 0.5rem 0.7rem; border-radius: 8px; border: 1px solid transparent;
+    border-left: 2px solid var(--border-strong); margin-bottom: 0.25rem;
+    transition: background 0.15s, opacity 0.15s; cursor: pointer;
+  }
+  .topic:hover { background: var(--surface); }
+  .topic.tp-core { border-left-color: var(--core); }
+  .topic.tp-useful { border-left-color: var(--useful); }
+  .topic.tp-later { border-left-color: var(--later); }
+  .topic.tp-skip { border-left-color: var(--skip); }
+  .topic.hidden { display: none; }
+
+  .topic input[type=checkbox] { appearance: none; -webkit-appearance: none; width: 1.05rem; height: 1.05rem; margin-top: 0.18rem; border: 1.5px solid var(--border-strong); border-radius: 5px; cursor: pointer; flex-shrink: 0; position: relative; transition: all 0.15s; }
+  .topic input[type=checkbox]:hover { border-color: var(--done); }
+  .topic input[type=checkbox]:checked { background: var(--done); border-color: var(--done); }
+  .topic input[type=checkbox]:checked::after { content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #0d1410; font-size: 0.72rem; font-weight: 700; }
+  .topic input[type=checkbox]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .topic-body { flex: 1; min-width: 0; }
+  .topic-name { font-family: 'JetBrains Mono', monospace; font-size: 0.86rem; color: var(--text); word-break: break-word; }
+  .topic-note { font-size: 0.78rem; color: var(--muted); margin-top: 0.1rem; font-family: 'Inter', sans-serif; }
+  .topic.checked .topic-name { color: var(--faint); text-decoration: line-through; }
+  .topic.checked .topic-note { opacity: 0.5; }
+
+  .ptag { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 700; padding: 0.18rem 0.4rem; border-radius: 4px; flex-shrink: 0; margin-top: 0.15rem; letter-spacing: 0.03em; }
+  .pt-core { background: var(--core-bg); color: var(--core); }
+  .pt-useful { background: var(--useful-bg); color: var(--useful); }
+  .pt-later { background: var(--later-bg); color: var(--later); }
+  .pt-skip { background: var(--skip-bg); color: var(--skip); }
+
+  /* ---- Closing ---- */
+  .closing { margin-top: 3.5rem; padding: 1.6rem 1.7rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+  .closing h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 600; margin-bottom: 0.7rem; }
+  .closing p { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.8rem; }
+  .closing strong { color: var(--text); font-weight: 500; }
+  .closing .project { font-family: 'JetBrains Mono', monospace; color: var(--accent); }
+  .closing ul { list-style: none; display: grid; gap: 0.4rem; margin: 0.5rem 0 0; }
+  .closing li { font-size: 0.85rem; color: var(--muted); padding-left: 1.3rem; position: relative; }
+  .closing li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+
+  .nav-jump { position: fixed; right: 1.2rem; bottom: 1.2rem; z-index: 40; display: flex; flex-direction: column; gap: 0.35rem; }
+  .nav-jump a { font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; color: var(--muted); background: var(--surface); border: 1px solid var(--border); width: 2rem; height: 2rem; border-radius: 7px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.15s; }
+  .nav-jump a:hover { color: var(--text); border-color: var(--accent); }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 1.7rem; }
+    .nav-jump { display: none; }
+    main { padding-top: 1.8rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar-inner">
+    <div class="bar-top">
+      <div class="brand">cracked<span class="dim">_python.roadmap</span></div>
+      <div class="overall" id="overall">— / — complete</div>
+    </div>
+    <div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="controls">
+      <div class="filters" id="filters">
+        <button class="chip c-core" data-p="CORE" data-on="true">CORE</button>
+        <button class="chip c-useful" data-p="USEFUL" data-on="true">USEFUL</button>
+        <button class="chip c-later" data-p="LATER" data-on="true">LATER</button>
+        <button class="chip c-skip" data-p="SKIP" data-on="true">SKIP</button>
+      </div>
+      <input type="text" class="search" id="search" placeholder="search topics…" aria-label="Search topics">
+      <button class="reset" id="reset">reset progress</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Get <span class="accent">absolutely cracked</span> at Python</h1>
+    <p>Every topic laid out — nothing hidden behind clicks. Each one is tagged by how much it actually matters, so you always know what's load-bearing versus what's optional. Check things off as you go; your progress saves automatically.</p>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-tag lt-core">CORE</span><span class="desc">Non-negotiable. You're not cracked without it.</span></div>
+      <div class="legend-item"><span class="legend-tag lt-useful">USEFUL</span><span class="desc">Real value. Learn after CORE in that track.</span></div>
+      <div class="legend-item"><span class="legend-tag lt-later">LATER</span><span class="desc">Matters, but only when a project demands it.</span></div>
+      <div class="legend-item"><span class="legend-tag lt-skip">SKIP</span><span class="desc">Listed so you know you're choosing to skip it.</span></div>
+    </div>
+  </div>
+
+  <div class="spine">
+    <h2>If you do nothing else, do these five</h2>
+    <p>The honest minimum to genuinely know your shit. Everything else expands these.</p>
+    <ol>
+      <li>OOP — classes, inheritance, dataclasses</li>
+      <li>Intermediate batch — with, try/except, I/O, JSON</li>
+      <li>The standard library you reach for daily</li>
+      <li>Git + Linux shell</li>
+      <li>Testing + project tooling (venv, pytest)</li>
+    </ol>
+  </div>
+
+  <div id="tracks"></div>
+
+  <div class="closing">
+    <h2>How to actually use this</h2>
+    <p>Don't grind top to bottom. The efficient path is to <strong>build something real</strong> — almost everything tagged CORE shows up naturally when you build a project that needs it.</p>
+    <p>A good first project that exercises most of the CORE list: <span class="project">a small command-line tool that reads a file, processes it, and writes structured output.</span> It forces you through:</p>
+    <ul>
+      <li>OOP + the intermediate batch (the language section)</li>
+      <li>file I/O, JSON, logging, pathlib (the toolkit section)</li>
+      <li>Git, a couple of tests, a clean project layout (dev craft)</li>
+    </ul>
+    <p style="margin-top:1rem">Focus on CORE first. Touch USEFUL once CORE feels comfortable. Ignore LATER and SKIP until something forces you there.</p>
+    <p style="margin-top:1rem;font-size:0.82rem;color:var(--faint)">When you want to specialize later, three natural directions branch off this base: <strong style="color:var(--muted)">backend</strong> (FastAPI, SQL, Docker), <strong style="color:var(--muted)">data</strong> (deeper pandas, Polars), or <strong style="color:var(--muted)">security / detection</strong> (your actual track — networking, log analysis, Wazuh). Each is its own roadmap — ask when you're ready and we'll build one out.</p>
+  </div>
+</main>
+
+<nav class="nav-jump" id="navJump" aria-label="Jump to track"></nav>
+
+<script>
+const DATA = [
+  {
+    id: "lang", name: "The Python language", num: "01",
+    blurb: "The actual language. Stage 1 you already have — start at Stage 2.",
+    stages: [
+      { name: "Stage 1 · Core syntax", note: "You already have this.", topics: [
+        {t:"Variables & data types (int, float, str, bool)", p:"CORE"},
+        {t:"Lists, dicts, sets, tuples", p:"CORE"},
+        {t:"Loops (for, while)", p:"CORE"},
+        {t:"Functions, arguments, return values", p:"CORE"},
+        {t:"Conditionals (if / elif / else)", p:"CORE"},
+        {t:"f-strings", p:"CORE"},
+        {t:"String methods & slicing", p:"CORE"},
+      ]},
+      { name: "Stage 2 · Intermediate essentials", note: "Your current gap. Fix first.", topics: [
+        {t:"with statements / context managers", p:"CORE", n:"What `with open(...)` actually does"},
+        {t:"try / except / else / finally", p:"CORE"},
+        {t:"Raising & custom exceptions", p:"CORE"},
+        {t:"File I/O — reading & writing", p:"CORE"},
+        {t:"json module (loads/dumps/load/dump)", p:"CORE"},
+        {t:"List comprehensions", p:"CORE"},
+        {t:"Dict & set comprehensions", p:"CORE"},
+        {t:"*args and **kwargs", p:"CORE"},
+        {t:"lambda functions", p:"CORE"},
+        {t:"Type hints (x: int -> str)", p:"CORE"},
+        {t:"Tuple unpacking & a, *rest = [...]", p:"CORE"},
+        {t:"Default args & the mutable-default gotcha", p:"USEFUL"},
+      ]},
+      { name: "Stage 3 · Idiomatic modern Python", note: "What makes code look pro.", topics: [
+        {t:"enumerate() and zip()", p:"CORE"},
+        {t:"Ternary expressions (x if cond else y)", p:"CORE"},
+        {t:"any() and all()", p:"CORE"},
+        {t:"sorted() with key=", p:"CORE"},
+        {t:"Walrus operator :=", p:"USEFUL"},
+        {t:"match / case (3.10+)", p:"USEFUL"},
+        {t:"Dict merging {**a, **b} / a | b", p:"USEFUL"},
+        {t:"Chained comparisons (0 < x < 10)", p:"USEFUL"},
+        {t:"map() and filter()", p:"USEFUL"},
+        {t:"Generator expressions", p:"USEFUL"},
+      ]},
+      { name: "Stage 4 · OOP", note: "Your single biggest unlock.", topics: [
+        {t:"Classes and __init__", p:"CORE"},
+        {t:"Instance methods and self", p:"CORE"},
+        {t:"Instance vs class attributes", p:"CORE"},
+        {t:"Inheritance", p:"CORE"},
+        {t:"super()", p:"CORE"},
+        {t:"__str__ and __repr__", p:"CORE"},
+        {t:"@property", p:"CORE"},
+        {t:"@dataclass", p:"CORE", n:"Modern shortcut for data-holding classes"},
+        {t:"Magic / dunder methods (__eq__, __len__…)", p:"USEFUL"},
+        {t:"@staticmethod and @classmethod", p:"USEFUL"},
+        {t:"Abstract base classes (abc)", p:"USEFUL"},
+        {t:"Metaclasses & descriptors", p:"SKIP", n:"Almost nobody writes these"},
+      ]},
+      { name: "Stage 5 · Going deeper", note: "Once the above feels easy.", topics: [
+        {t:"Generators and yield", p:"USEFUL"},
+        {t:"Writing your own decorators", p:"USEFUL"},
+        {t:"async / await + asyncio basics", p:"USEFUL", n:"The event loop, coroutines"},
+        {t:"Threading vs multiprocessing vs async", p:"USEFUL"},
+        {t:"The GIL — what & why", p:"USEFUL"},
+        {t:"Profiling (cProfile, timeit)", p:"LATER"},
+        {t:"CPython internals / bytecode", p:"SKIP", n:"Blog-flex; skip for now"},
+      ]},
+    ]
+  },
+  {
+    id: "libs", name: "Libraries & the standard toolkit", num: "02",
+    blurb: "One section for everything you import. The stdlib you reach for daily, plus the data libraries worth knowing.",
+    stages: [
+      { name: "Standard library essentials", note: "Learn each when a project needs it — not all at once.", topics: [
+        {t:"pathlib", p:"CORE", n:"Modern file paths"},
+        {t:"logging", p:"CORE", n:"Proper logging, not print()"},
+        {t:"datetime", p:"CORE"},
+        {t:"re (regular expressions)", p:"CORE"},
+        {t:"os and sys", p:"CORE"},
+        {t:"subprocess", p:"CORE", n:"Running shell commands"},
+        {t:"collections (defaultdict, Counter, deque)", p:"USEFUL"},
+        {t:"itertools", p:"USEFUL"},
+        {t:"functools (lru_cache, partial, wraps)", p:"USEFUL"},
+        {t:"typing (Optional, Union, Callable)", p:"USEFUL"},
+        {t:"enum", p:"USEFUL"},
+        {t:"copy (shallow vs deep)", p:"LATER"},
+      ]},
+      { name: "Data libraries", note: "The two everyone actually uses. Learn pandas through a real project.", topics: [
+        {t:"NumPy — arrays & vectorization", p:"USEFUL", n:"The base layer under pandas"},
+        {t:"NumPy — broadcasting & boolean masking", p:"USEFUL"},
+        {t:"pandas — DataFrames & Series", p:"USEFUL"},
+        {t:"pandas — reading CSV / JSON", p:"USEFUL"},
+        {t:"pandas — filtering, groupby, merge", p:"USEFUL"},
+        {t:"pandas — missing data & datetime", p:"USEFUL"},
+        {t:"matplotlib — basic charts", p:"USEFUL"},
+        {t:"Polars / DuckDB", p:"LATER", n:"Faster modern alternatives — awareness only"},
+      ]},
+      { name: "Web & HTTP", note: "For talking to APIs.", topics: [
+        {t:"requests — making HTTP calls", p:"CORE"},
+        {t:"Parsing JSON API responses", p:"CORE"},
+        {t:"httpx — async HTTP", p:"LATER"},
+      ]},
+    ]
+  },
+  {
+    id: "craft", name: "Dev craft", num: "03",
+    blurb: "The professional habits. Practice these while building anything above — they're not a separate study block.",
+    stages: [
+      { name: "Git & version control", note: "Learn it properly, beyond commit & push.", topics: [
+        {t:"Branching", p:"CORE"},
+        {t:"Merge vs rebase", p:"CORE"},
+        {t:"Resolving merge conflicts", p:"CORE"},
+        {t:"Pull request workflow", p:"CORE"},
+        {t:"git stash", p:"USEFUL"},
+        {t:"Interactive rebase (rebase -i)", p:"USEFUL"},
+        {t:".gitignore patterns", p:"USEFUL"},
+      ]},
+      { name: "Linux & shell", note: "You run Fedora — build on that head start.", topics: [
+        {t:"bash scripting basics", p:"CORE"},
+        {t:"Pipes & redirection", p:"CORE"},
+        {t:"grep, awk, sed", p:"CORE"},
+        {t:"File permissions", p:"CORE"},
+        {t:"Process management (ps, top, kill)", p:"USEFUL"},
+        {t:"cron & systemd basics", p:"USEFUL"},
+        {t:"SSH & key management", p:"USEFUL"},
+      ]},
+      { name: "Testing", note: "Nobody hires a dev who doesn't test.", topics: [
+        {t:"pytest basics", p:"CORE"},
+        {t:"Writing assertions & test functions", p:"CORE"},
+        {t:"Fixtures", p:"USEFUL"},
+        {t:"Mocking (unittest.mock)", p:"USEFUL"},
+        {t:"parametrize", p:"USEFUL"},
+        {t:"Coverage (pytest-cov)", p:"LATER"},
+      ]},
+      { name: "Project structure & tooling", note: "Makes your code look serious.", topics: [
+        {t:"Virtual environments (venv / uv)", p:"CORE"},
+        {t:"pyproject.toml", p:"CORE"},
+        {t:".env files & config", p:"CORE"},
+        {t:"uv — fast modern pip/venv", p:"USEFUL", n:"Current standard"},
+        {t:"ruff — fast linter", p:"USEFUL"},
+        {t:"mypy — static type checking", p:"USEFUL"},
+        {t:"pre-commit hooks", p:"LATER"},
+      ]},
+    ]
+  },
+];
+
+const STORE_KEY = "cracked_python_progress_v1";
+let checked = {};
+try { checked = JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); } catch(e) { checked = {}; }
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(checked)); } catch(e) {} }
+
+const pClass = { CORE:"core", USEFUL:"useful", LATER:"later", SKIP:"skip" };
+const filterState = { CORE:true, USEFUL:true, LATER:true, SKIP:true };
+let searchTerm = "";
+
+function uid(ti, si, idx) { return `${ti}.${si}.${idx}`; }
+
+function render() {
+  const root = document.getElementById("tracks");
+  const nav = document.getElementById("navJump");
+  root.innerHTML = "";
+  nav.innerHTML = "";
+  DATA.forEach((track, ti) => {
+    const sec = document.createElement("section");
+    sec.className = "track";
+    sec.id = "track-" + track.id;
+    let core = 0, coreDone = 0, total = 0, done = 0;
+    track.stages.forEach((st, si) => st.topics.forEach((tp, idx) => {
+      total++; if (tp.p === "CORE") core++;
+      if (checked[uid(ti,si,idx)]) { done++; if (tp.p === "CORE") coreDone++; }
+    }));
+    let html = `<div class="track-head">
+      <div class="track-title"><span class="track-num">${track.num}</span>${track.name}</div>
+      <div class="track-count" id="tc-${track.id}"><b>${coreDone}</b>/${core} core · ${done}/${total} total</div>
+    </div>
+    <div class="track-blurb">${track.blurb}</div>
+    <div class="track-rail"><span id="tr-${track.id}" style="width:${core? (coreDone/core*100):0}%"></span></div>`;
+
+    track.stages.forEach((st, si) => {
+      html += `<div class="stage"><div class="stage-name">${st.name}</div>`;
+      if (st.note) html += `<div class="stage-note">${st.note}</div>`;
+      st.topics.forEach((tp, idx) => {
+        const id = uid(ti,si,idx);
+        const isOn = checked[id];
+        html += `<label class="topic tp-${pClass[tp.p]} ${isOn?'checked':''}" data-p="${tp.p}" data-id="${id}" data-name="${tp.t.toLowerCase()}${tp.n?(' '+tp.n.toLowerCase()):''}">
+          <input type="checkbox" ${isOn?'checked':''} aria-label="${tp.t}">
+          <span class="ptag pt-${pClass[tp.p]}">${tp.p}</span>
+          <span class="topic-body">
+            <span class="topic-name">${tp.t}</span>
+            ${tp.n?`<span class="topic-note">${tp.n}</span>`:''}
+          </span>
+        </label>`;
+      });
+      html += `</div>`;
+    });
+    sec.innerHTML = html;
+    root.appendChild(sec);
+
+    const a = document.createElement("a");
+    a.href = "#track-" + track.id;
+    a.textContent = track.num;
+    a.title = track.name;
+    nav.appendChild(a);
+  });
+  applyFilters();
+  updateOverall();
+}
+
+function onToggle(id, isChecked, labelEl) {
+  if (isChecked) checked[id] = true; else delete checked[id];
+  save();
+  labelEl.classList.toggle("checked", isChecked);
+  updateTrackBars();
+  updateOverall();
+}
+
+function updateTrackBars() {
+  DATA.forEach((track, ti) => {
+    let core=0, coreDone=0, total=0, done=0;
+    track.stages.forEach((st,si)=>st.topics.forEach((tp,idx)=>{
+      total++; if(tp.p==="CORE")core++;
+      if(checked[uid(ti,si,idx)]){done++; if(tp.p==="CORE")coreDone++;}
+    }));
+    const bar = document.getElementById("tr-"+track.id);
+    const cnt = document.getElementById("tc-"+track.id);
+    if(bar) bar.style.width = (core?(coreDone/core*100):0)+"%";
+    if(cnt) cnt.innerHTML = `<b>${coreDone}</b>/${core} core · ${done}/${total} total`;
+  });
+}
+
+function updateOverall() {
+  let total=0, done=0, core=0, coreDone=0;
+  DATA.forEach((track,ti)=>track.stages.forEach((st,si)=>st.topics.forEach((tp,idx)=>{
+    total++; if(tp.p==="CORE")core++;
+    if(checked[uid(ti,si,idx)]){done++; if(tp.p==="CORE")coreDone++;}
+  })));
+  document.getElementById("overall").innerHTML = `<b>${coreDone}</b>/${core} core complete · ${done}/${total} total`;
+  document.getElementById("progressFill").style.width = (core?(coreDone/core*100):0)+"%";
+}
+
+function applyFilters() {
+  document.querySelectorAll(".topic").forEach(el => {
+    const p = el.dataset.p;
+    const name = el.dataset.name;
+    const passFilter = filterState[p];
+    const passSearch = !searchTerm || name.includes(searchTerm);
+    el.classList.toggle("hidden", !(passFilter && passSearch));
+  });
+}
+
+document.getElementById("tracks").addEventListener("change", e => {
+  if (e.target.matches("input[type=checkbox]")) {
+    const label = e.target.closest(".topic");
+    onToggle(label.dataset.id, e.target.checked, label);
+  }
+});
+
+document.getElementById("filters").addEventListener("click", e => {
+  const chip = e.target.closest(".chip");
+  if (!chip) return;
+  const p = chip.dataset.p;
+  filterState[p] = !filterState[p];
+  chip.dataset.on = filterState[p];
+  applyFilters();
+});
+
+document.getElementById("search").addEventListener("input", e => {
+  searchTerm = e.target.value.trim().toLowerCase();
+  applyFilters();
+});
+
+document.getElementById("reset").addEventListener("click", () => {
+  if (confirm("Clear all checked progress? This can't be undone.")) {
+    checked = {}; save(); render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
