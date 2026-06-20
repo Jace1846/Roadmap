@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cracked C Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f16;
+    --surface: #151823;
+    --surface-2: #1b1f2d;
+    --border: rgba(255,255,255,0.07);
+    --border-strong: rgba(255,255,255,0.14);
+    --text: #e7e9f0;
+    --muted: #8b91a3;
+    --faint: #5b6175;
+    --core: #eaa85c;
+    --core-bg: rgba(234,168,92,0.12);
+    --useful: #5fb6c9;
+    --useful-bg: rgba(95,182,201,0.12);
+    --later: #8089a0;
+    --later-bg: rgba(128,137,160,0.10);
+    --skip: #5b6175;
+    --skip-bg: rgba(91,97,117,0.08);
+    --done: #6fc592;
+    --done-bg: rgba(111,197,146,0.12);
+    --accent: #6c9bd1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; padding-bottom: 4rem; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  header { position: sticky; top: 0; z-index: 50; background: rgba(13,15,22,0.88); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+  .bar-inner { max-width: 920px; margin: 0 auto; padding: 0.9rem 1.5rem; }
+  .bar-top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .brand { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.05rem; letter-spacing: -0.01em; }
+  .brand .dim { color: var(--faint); font-weight: 400; }
+  .overall { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--muted); }
+  .overall b { color: var(--done); font-weight: 700; }
+  .progress-rail { height: 4px; background: var(--surface-2); border-radius: 99px; margin-top: 0.7rem; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--done), #8fd9ad); border-radius: 99px; transition: width 0.4s ease; }
+  .controls { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.8rem; flex-wrap: wrap; }
+  .filters { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 500; padding: 0.28rem 0.6rem; border-radius: 6px; cursor: pointer; user-select: none; border: 1px solid var(--border-strong); background: transparent; color: var(--muted); transition: all 0.15s; letter-spacing: 0.02em; }
+  .chip[data-on="true"].c-core { background: var(--core-bg); color: var(--core); border-color: var(--core); }
+  .chip[data-on="true"].c-useful { background: var(--useful-bg); color: var(--useful); border-color: var(--useful); }
+  .chip[data-on="true"].c-later { background: var(--later-bg); color: var(--later); border-color: var(--later); }
+  .chip[data-on="true"].c-skip { background: var(--skip-bg); color: var(--skip); border-color: var(--skip); }
+  .chip[data-on="false"] { opacity: 0.42; text-decoration: line-through; }
+  .search { flex: 1; min-width: 140px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; background: var(--surface); border: 1px solid var(--border-strong); color: var(--text); padding: 0.4rem 0.7rem; border-radius: 6px; }
+  .search::placeholder { color: var(--faint); }
+  .search:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .reset { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--faint); background: transparent; border: 1px solid var(--border); padding: 0.3rem 0.6rem; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+  .reset:hover { color: var(--muted); border-color: var(--border-strong); }
+  main { max-width: 920px; margin: 0 auto; padding: 2.5rem 1.5rem 0; }
+  .hero { margin-bottom: 2.5rem; }
+  .hero h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 2.2rem; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.6rem; }
+  .hero h1 .accent { color: var(--accent); }
+  .hero p { color: var(--muted); max-width: 60ch; font-size: 0.95rem; }
+  .legend { display: flex; gap: 1.1rem; flex-wrap: wrap; margin-top: 1.3rem; padding: 0.9rem 1.1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+  .legend-item { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.8rem; }
+  .legend-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 5px; white-space: nowrap; margin-top: 0.1rem; }
+  .legend-item span.desc { color: var(--muted); }
+  .lt-core { background: var(--core-bg); color: var(--core); }
+  .lt-useful { background: var(--useful-bg); color: var(--useful); }
+  .lt-later { background: var(--later-bg); color: var(--later); }
+  .lt-skip { background: var(--skip-bg); color: var(--skip); }
+  .spine { margin: 2rem 0 3rem; padding: 1.4rem 1.5rem; background: linear-gradient(180deg, rgba(167,139,250,0.07), transparent); border: 1px solid var(--accent); border-radius: 12px; }
+  .spine h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .spine p { font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem; }
+  .spine ol { list-style: none; counter-reset: spine; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.5rem; }
+  .spine li { counter-increment: spine; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; padding-left: 2rem; position: relative; color: var(--text); }
+  .spine li::before { content: counter(spine); position: absolute; left: 0; top: -1px; width: 1.4rem; height: 1.4rem; background: var(--accent); color: #11131a; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.72rem; }
+  .track { margin-bottom: 3rem; scroll-margin-top: 8rem; }
+  .track-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.3rem; flex-wrap: wrap; }
+  .track-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.45rem; font-weight: 700; letter-spacing: -0.02em; }
+  .track-num { font-family: 'JetBrains Mono', monospace; color: var(--faint); font-size: 0.9rem; font-weight: 400; margin-right: 0.5rem; }
+  .track-count { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
+  .track-count b { color: var(--done); }
+  .track-blurb { color: var(--muted); font-size: 0.88rem; margin-bottom: 0.5rem; }
+  .track-rail { height: 3px; background: var(--surface-2); border-radius: 99px; overflow: hidden; margin-bottom: 1.4rem; }
+  .track-rail span { display: block; height: 100%; width: 0%; background: var(--done); border-radius: 99px; transition: width 0.4s; }
+  .stage { margin-bottom: 1.5rem; }
+  .stage-name { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.1rem; }
+  .stage-note { font-size: 0.8rem; color: var(--faint); margin-bottom: 0.6rem; font-style: italic; }
+  .topic { display: flex; align-items: flex-start; gap: 0.7rem; padding: 0.5rem 0.7rem; border-radius: 8px; border: 1px solid transparent; border-left: 2px solid var(--border-strong); margin-bottom: 0.25rem; transition: background 0.15s, opacity 0.15s; cursor: pointer; }
+  .topic:hover { background: var(--surface); }
+  .topic.tp-core { border-left-color: var(--core); }
+  .topic.tp-useful { border-left-color: var(--useful); }
+  .topic.tp-later { border-left-color: var(--later); }
+  .topic.tp-skip { border-left-color: var(--skip); }
+  .topic.hidden { display: none; }
+  .topic input[type=checkbox] { appearance: none; -webkit-appearance: none; width: 1.05rem; height: 1.05rem; margin-top: 0.18rem; border: 1.5px solid var(--border-strong); border-radius: 5px; cursor: pointer; flex-shrink: 0; position: relative; transition: all 0.15s; }
+  .topic input[type=checkbox]:hover { border-color: var(--done); }
+  .topic input[type=checkbox]:checked { background: var(--done); border-color: var(--done); }
+  .topic input[type=checkbox]:checked::after { content: '\2713'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #0d1410; font-size: 0.72rem; font-weight: 700; }
+  .topic input[type=checkbox]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .topic-body { flex: 1; min-width: 0; }
+  .topic-name { font-family: 'JetBrains Mono', monospace; font-size: 0.86rem; color: var(--text); word-break: break-word; }
+  .topic-note { font-size: 0.78rem; color: var(--muted); margin-top: 0.1rem; font-family: 'Inter', sans-serif; }
+  .topic.checked .topic-name { color: var(--faint); text-decoration: line-through; }
+  .topic.checked .topic-note { opacity: 0.5; }
+  .ptag { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 700; padding: 0.18rem 0.4rem; border-radius: 4px; flex-shrink: 0; margin-top: 0.15rem; letter-spacing: 0.03em; }
+  .pt-core { background: var(--core-bg); color: var(--core); }
+  .pt-useful { background: var(--useful-bg); color: var(--useful); }
+  .pt-later { background: var(--later-bg); color: var(--later); }
+  .pt-skip { background: var(--skip-bg); color: var(--skip); }
+  .closing { margin-top: 3.5rem; padding: 1.6rem 1.7rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+  .closing h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 600; margin-bottom: 0.7rem; }
+  .closing p { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.8rem; }
+  .closing strong { color: var(--text); font-weight: 500; }
+  .closing .project { font-family: 'JetBrains Mono', monospace; color: var(--accent); }
+  .closing ul { list-style: none; display: grid; gap: 0.4rem; margin: 0.5rem 0 0; }
+  .closing li { font-size: 0.85rem; color: var(--muted); padding-left: 1.3rem; position: relative; }
+  .closing li::before { content: '\2192'; position: absolute; left: 0; color: var(--accent); }
+  .nav-jump { position: fixed; right: 1.2rem; bottom: 1.2rem; z-index: 40; display: flex; flex-direction: column; gap: 0.35rem; }
+  .nav-jump a { font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; color: var(--muted); background: var(--surface); border: 1px solid var(--border); width: 2rem; height: 2rem; border-radius: 7px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.15s; }
+  .nav-jump a:hover { color: var(--text); border-color: var(--accent); }
+  @media (max-width: 600px) { .hero h1 { font-size: 1.7rem; } .nav-jump { display: none; } main { padding-top: 1.8rem; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar-inner">
+    <div class="bar-top">
+      <div class="brand">cracked<span class='dim'>_c.roadmap</span></div>
+      <div class="overall" id="overall">— / — complete</div>
+    </div>
+    <div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="controls">
+      <div class="filters" id="filters">
+        <button class="chip c-core" data-p="CORE" data-on="true">CORE</button>
+        <button class="chip c-useful" data-p="USEFUL" data-on="true">USEFUL</button>
+        <button class="chip c-later" data-p="LATER" data-on="true">LATER</button>
+        <button class="chip c-skip" data-p="SKIP" data-on="true">SKIP</button>
+      </div>
+      <input type="text" class="search" id="search" placeholder="search topics\u2026" aria-label="Search topics">
+      <button class="reset" id="reset">reset progress</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <h1>Get <span class='accent'>absolutely cracked</span> at C</h1>
+    <p>Every topic laid out — nothing hidden, each tagged by how much it matters. C is small as a language but unforgiving on memory — the priority weighting reflects that. Progress saves automatically.</p>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-tag lt-core">CORE</span><span class="desc">Non-negotiable. You're not fluent without it.</span></div>
+      <div class="legend-item"><span class="legend-tag lt-useful">USEFUL</span><span class="desc">Real value. Learn after CORE in that section.</span></div>
+      <div class="legend-item"><span class="legend-tag lt-later">LATER</span><span class="desc">Matters, but only when a project demands it.</span></div>
+      <div class="legend-item"><span class="legend-tag lt-skip">SKIP</span><span class="desc">Listed so you know you're choosing to skip it.</span></div>
+    </div>
+  </div>
+  <div class="spine">
+    <h2>If you do nothing else, do these five</h2>
+    <p>C is mostly about pointers and memory. Get those right and the rest is small.</p>
+    <ol><li>Pointers & pointer arithmetic</li><li>Manual memory (malloc / free)</li><li>Structs, unions, typedef</li><li>The compile → link model & make</li><li>Debugging with gdb + valgrind</li></ol>
+  </div>
+  <div id="tracks"></div>
+  <div class="closing"><h2>How to actually use this</h2><p>C is learned by fighting the compiler and the debugger. <strong>Build small, break things, run valgrind.</strong> Almost every CORE topic shows up the moment you manage your own memory.</p><p>A good first project: <span class='project'>a dynamic array or linked list from scratch</span>, then a small CLI tool that parses a file. You'll hit pointers, structs, malloc/free, and the build toolchain all at once.</p><p style='margin-top:1rem'>Focus on CORE first. The memory section is where people actually struggle — don't rush it. Ignore LATER and SKIP until a project forces you there.</p><p style='margin-top:1rem;font-size:0.82rem;color:var(--faint)'>C is the natural gateway to <strong style='color:var(--muted)'>systems programming</strong>, <strong style='color:var(--muted)'>embedded</strong>, and <strong style='color:var(--muted)'>OS / kernel</strong> work. Each is its own roadmap — ask when you're ready.</p></div>
+</main>
+<nav class="nav-jump" id="navJump" aria-label="Jump to section"></nav>
+<script>
+const DATA = [{"id": "lang", "name": "The C language", "num": "01", "blurb": "A small language with sharp edges. The whole game is pointers and memory.", "stages": [{"name": "Stage 1 \u00b7 Core syntax", "note": "The fundamentals. Quick if you know another language.", "topics": [{"t": "Types (int, char, float, double, size_t)", "p": "CORE"}, {"t": "Operators & control flow", "p": "CORE"}, {"t": "Functions & prototypes", "p": "CORE"}, {"t": "Arrays", "p": "CORE"}, {"t": "Strings as char arrays & null terminator", "p": "CORE"}, {"t": "printf / scanf & format specifiers", "p": "CORE"}, {"t": "Integer types & overflow behavior", "p": "USEFUL"}]}, {"name": "Stage 2 \u00b7 Pointers & memory", "note": "The heart of C. Spend the most time here.", "topics": [{"t": "Pointers & dereferencing", "p": "CORE"}, {"t": "Pointer arithmetic", "p": "CORE"}, {"t": "Arrays vs pointers (the relationship)", "p": "CORE"}, {"t": "malloc / calloc / realloc / free", "p": "CORE"}, {"t": "Stack vs heap", "p": "CORE"}, {"t": "Dangling pointers & use-after-free", "p": "CORE"}, {"t": "Memory leaks", "p": "CORE"}, {"t": "Pointers to pointers (char **argv)", "p": "USEFUL"}, {"t": "void pointers", "p": "USEFUL"}, {"t": "Function pointers", "p": "USEFUL"}, {"t": "const correctness", "p": "USEFUL"}]}, {"name": "Stage 3 \u00b7 Structs & data", "note": "How you model anything in C.", "topics": [{"t": "Structs", "p": "CORE"}, {"t": "typedef", "p": "CORE"}, {"t": "Pointers to structs & arrow operator", "p": "CORE"}, {"t": "Enums", "p": "USEFUL"}, {"t": "Unions", "p": "USEFUL"}, {"t": "Bitfields & bit manipulation", "p": "LATER"}]}, {"name": "Stage 4 \u00b7 Preprocessor & build model", "note": "How C programs are actually assembled.", "topics": [{"t": "#include & header files", "p": "CORE"}, {"t": "#define & simple macros", "p": "CORE"}, {"t": "Compilation units & linking", "p": "CORE"}, {"t": "Header guards / #pragma once", "p": "CORE"}, {"t": "extern & static (linkage)", "p": "USEFUL"}, {"t": "Function-like macros & pitfalls", "p": "USEFUL"}, {"t": "Conditional compilation (#ifdef)", "p": "LATER"}]}, {"name": "Stage 5 \u00b7 Going deeper", "note": "What separates competent from dangerous.", "topics": [{"t": "Undefined behavior \u2014 what & why it bites", "p": "USEFUL"}, {"t": "Memory layout & alignment", "p": "USEFUL"}, {"t": "Storage classes (static, register, auto)", "p": "USEFUL"}, {"t": "volatile", "p": "LATER"}, {"t": "Inline assembly", "p": "SKIP", "n": "Niche; skip for now"}]}]}, {"id": "libs", "name": "The standard library & system toolkit", "num": "02", "blurb": "C's standard library is tiny by design. Here's what you'll actually include.", "stages": [{"name": "Standard library headers", "note": "The ones you reach for constantly.", "topics": [{"t": "stdio.h (file & console I/O)", "p": "CORE"}, {"t": "stdlib.h (malloc, free, atoi, qsort)", "p": "CORE"}, {"t": "string.h (strlen, strcpy, memcpy, strcmp)", "p": "CORE"}, {"t": "ctype.h (isdigit, isalpha, tolower)", "p": "USEFUL"}, {"t": "math.h", "p": "USEFUL"}, {"t": "stdint.h & stdbool.h", "p": "USEFUL"}, {"t": "time.h", "p": "USEFUL"}, {"t": "assert.h", "p": "USEFUL"}]}, {"name": "System / POSIX (when you go lower)", "note": "For real systems work \u2014 not needed day one.", "topics": [{"t": "File descriptors (open, read, write)", "p": "LATER"}, {"t": "unistd.h basics", "p": "LATER"}, {"t": "pthreads (threads)", "p": "LATER"}, {"t": "sockets", "p": "LATER"}]}]}, {"id": "craft", "name": "Dev craft", "num": "03", "blurb": "In C, your tools catch the bugs the language won't. These are not optional.", "stages": [{"name": "Compiler & flags", "note": "Your first line of defense.", "topics": [{"t": "gcc / clang basics", "p": "CORE"}, {"t": "-Wall -Wextra (turn on warnings)", "p": "CORE"}, {"t": "-g (debug symbols)", "p": "CORE"}, {"t": "Understanding compiler errors", "p": "CORE"}, {"t": "Optimization levels (-O0..-O2)", "p": "LATER"}]}, {"name": "Debugging & memory tools", "note": "In C these are survival skills, not extras.", "topics": [{"t": "gdb (breakpoints, backtrace, step)", "p": "CORE"}, {"t": "valgrind (memory leaks & errors)", "p": "CORE"}, {"t": "AddressSanitizer (-fsanitize=address)", "p": "USEFUL"}, {"t": "UndefinedBehaviorSanitizer", "p": "USEFUL"}]}, {"name": "Build & workflow", "note": "How C projects are organized.", "topics": [{"t": "make & Makefiles", "p": "CORE"}, {"t": "Splitting code into .c / .h files", "p": "CORE"}, {"t": "Git basics", "p": "CORE"}, {"t": "CMake", "p": "LATER", "n": "For larger projects"}]}]}];
+const STORE_KEY = "cracked_c_progress_v1";
+let checked = {};
+try { checked = JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); } catch(e) { checked = {}; }
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(checked)); } catch(e) {} }
+const pClass = { CORE:"core", USEFUL:"useful", LATER:"later", SKIP:"skip" };
+const filterState = { CORE:true, USEFUL:true, LATER:true, SKIP:true };
+let searchTerm = "";
+function uid(ti, si, idx) { return ti+"."+si+"."+idx; }
+function render() {
+  const root = document.getElementById("tracks");
+  const nav = document.getElementById("navJump");
+  root.innerHTML = ""; nav.innerHTML = "";
+  DATA.forEach((track, ti) => {
+    const sec = document.createElement("section");
+    sec.className = "track"; sec.id = "track-" + track.id;
+    let core = 0, coreDone = 0, total = 0, done = 0;
+    track.stages.forEach((st, si) => st.topics.forEach((tp, idx) => {
+      total++; if (tp.p === "CORE") core++;
+      if (checked[uid(ti,si,idx)]) { done++; if (tp.p === "CORE") coreDone++; }
+    }));
+    let html = '<div class="track-head"><div class="track-title"><span class="track-num">'+track.num+'</span>'+track.name+'</div><div class="track-count" id="tc-'+track.id+'"><b>'+coreDone+'</b>/'+core+' core \u00b7 '+done+'/'+total+' total</div></div><div class="track-blurb">'+track.blurb+'</div><div class="track-rail"><span id="tr-'+track.id+'" style="width:'+(core?(coreDone/core*100):0)+'%"></span></div>';
+    track.stages.forEach((st, si) => {
+      html += '<div class="stage"><div class="stage-name">'+st.name+'</div>';
+      if (st.note) html += '<div class="stage-note">'+st.note+'</div>';
+      st.topics.forEach((tp, idx) => {
+        const id = uid(ti,si,idx);
+        const isOn = checked[id];
+        const note = tp.n ? '<span class="topic-note">'+tp.n+'</span>' : '';
+        const searchData = (tp.t + (tp.n ? ' '+tp.n : '')).toLowerCase();
+        html += '<label class="topic tp-'+pClass[tp.p]+' '+(isOn?'checked':'')+'" data-p="'+tp.p+'" data-id="'+id+'" data-name="'+searchData.replace(/"/g,'')+'"><input type="checkbox" '+(isOn?'checked':'')+' aria-label="'+tp.t.replace(/"/g,'')+'"><span class="ptag pt-'+pClass[tp.p]+'">'+tp.p+'</span><span class="topic-body"><span class="topic-name">'+tp.t+'</span>'+note+'</span></label>';
+      });
+      html += '</div>';
+    });
+    sec.innerHTML = html; root.appendChild(sec);
+    const a = document.createElement("a");
+    a.href = "#track-" + track.id; a.textContent = track.num; a.title = track.name;
+    nav.appendChild(a);
+  });
+  applyFilters(); updateOverall();
+}
+function onToggle(id, isChecked, labelEl) {
+  if (isChecked) checked[id] = true; else delete checked[id];
+  save(); labelEl.classList.toggle("checked", isChecked);
+  updateTrackBars(); updateOverall();
+}
+function updateTrackBars() {
+  DATA.forEach((track, ti) => {
+    let core=0, coreDone=0, total=0, done=0;
+    track.stages.forEach((st,si)=>st.topics.forEach((tp,idx)=>{
+      total++; if(tp.p==="CORE")core++;
+      if(checked[uid(ti,si,idx)]){done++; if(tp.p==="CORE")coreDone++;}
+    }));
+    const bar = document.getElementById("tr-"+track.id);
+    const cnt = document.getElementById("tc-"+track.id);
+    if(bar) bar.style.width = (core?(coreDone/core*100):0)+"%";
+    if(cnt) cnt.innerHTML = '<b>'+coreDone+'</b>/'+core+' core \u00b7 '+done+'/'+total+' total';
+  });
+}
+function updateOverall() {
+  let total=0, done=0, core=0, coreDone=0;
+  DATA.forEach((track,ti)=>track.stages.forEach((st,si)=>st.topics.forEach((tp,idx)=>{
+    total++; if(tp.p==="CORE")core++;
+    if(checked[uid(ti,si,idx)]){done++; if(tp.p==="CORE")coreDone++;}
+  })));
+  document.getElementById("overall").innerHTML = '<b>'+coreDone+'</b>/'+core+' core complete \u00b7 '+done+'/'+total+' total';
+  document.getElementById("progressFill").style.width = (core?(coreDone/core*100):0)+"%";
+}
+function applyFilters() {
+  document.querySelectorAll(".topic").forEach(el => {
+    const p = el.dataset.p; const name = el.dataset.name;
+    const passFilter = filterState[p];
+    const passSearch = !searchTerm || name.includes(searchTerm);
+    el.classList.toggle("hidden", !(passFilter && passSearch));
+  });
+}
+document.getElementById("tracks").addEventListener("change", e => {
+  if (e.target.matches("input[type=checkbox]")) {
+    const label = e.target.closest(".topic");
+    onToggle(label.dataset.id, e.target.checked, label);
+  }
+});
+document.getElementById("filters").addEventListener("click", e => {
+  const chip = e.target.closest(".chip"); if (!chip) return;
+  const p = chip.dataset.p; filterState[p] = !filterState[p];
+  chip.dataset.on = filterState[p]; applyFilters();
+});
+document.getElementById("search").addEventListener("input", e => {
+  searchTerm = e.target.value.trim().toLowerCase(); applyFilters();
+});
+document.getElementById("reset").addEventListener("click", () => {
+  if (confirm("Clear all checked progress? This can't be undone.")) { checked = {}; save(); render(); }
+});
+render();
+</script>
+</body>
+</html>
